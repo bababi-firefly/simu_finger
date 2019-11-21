@@ -8,12 +8,8 @@ import time
 
 
 driver = webdriver.Chrome()
-print(time.time())
 driver.get("https://www.airbnb.com")
-print(time.time())
 driver.implicitly_wait(10)
-print(time.time())
-
 try:
     element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "my_id"))
