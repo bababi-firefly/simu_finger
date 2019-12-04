@@ -14,4 +14,3 @@ def random_wait():
         wait_time += 10
     sleep(wait_time)
 
-
