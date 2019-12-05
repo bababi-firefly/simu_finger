@@ -9,5 +9,5 @@ import numpy as np
 from useful_fuc import *
 
 browser = webdriver.Chrome()
-browser.get("http://www.baidu.com")
+browser.get("http://www.ipcow.com")
 random_wait()
