@@ -6,8 +6,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
 import numpy as np
-from useful_fuc import *
 
 browser = webdriver.Chrome()
-browser.get("http://www.ipcow.com")
-random_wait()
+browser.get("https://whatismyipaddress.com/blacklist-check")
+button = browser.find_element_by_name("Lookup Hostname")
+button.click()
+all_img = browser.find_elements_by_xpath("//table//img")
+for i in all_img:
+    print(i.get_attribute('src'))
+
+
+
+
+
+
