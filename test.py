@@ -1,7 +1,4 @@
-class B(object):
-    def __init__(self):
-        pass
-    def cc(self):
-        pass
+from useful_fuc import IpThings
 
-print(dir(B))
+ip = IpThings("1.1.1.1")
+ip.check_if_ip_black()
