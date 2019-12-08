@@ -10,6 +10,9 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from time import sleep
 import numpy as np
 import sys
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
 
 # 随机时间等待
@@ -153,10 +156,9 @@ class ScreenRes(object):
         raise NotImplementedError()
 
 
-def get_UA(type):
+def get_UA():
     """FireFox, Google Chrome, Edge, IE"""
     # 通过类型，远程连接数据库，获取UA信息，参数type已通过webdriver启动时确定。
-
 
 def conn_mysql():
     """
@@ -173,12 +175,11 @@ class IpThings(object):
 
     def check_if_ip_black(self):
         chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
+        # chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--disable-gpu')
         desired_capabilities = DesiredCapabilities().CHROME
         desired_capabilities['pageLoadStrategy'] = 'none'
         browser = webdriver.Chrome(chrome_options=chrome_options,
-                                   executable_path=r"C:\Program Files (x86)\Google\Chrome\Application\chromedriver",
                                    desired_capabilities=desired_capabilities)
 
         browser.get(self.check_ip_url)
@@ -204,6 +205,37 @@ class IpThings(object):
             sleep(0.1)
             if "bl_red_" in browser.page_source:
                 red += 1
+        print(red)
         return red
+
+
+class email():
+    """
+    发送错误日志到邮箱
+    """
+    def __init__(self, msg_from, password, msg_to):
+        self.msg_from = msg_from
+        self.password = password
+        self.msg_to = msg_to
+
+    def send_log(self, message):
+        try:
+            self.client = smtplib.SMTP_SSL("smtp.qq.com", smtplib.SMTP_SSL_PORT)
+            print("连接到邮件服务器成功")
+            self.client.login(self.msg_from, self.password)
+            print("登录成功")
+
+            mes = MIMEText(message, 'plain', 'utf-8')
+            mes['From'] = Header(self.msg_from, 'utf-8')
+            mes['To'] = Header(self.msg_to, 'utf-8')
+            mes['Subject'] = Header("日志", 'utf-8')
+
+            self.client.sendmail(self.msg_from, self.msg_to, mes.as_string())
+            print("发送邮件成功")
+        except smtplib.SMTPException as e:
+            print("发送邮件失败")
+        finally:
+            self.client.quit()
+
 
 
