@@ -1,20 +1,26 @@
-from __future__ import print_function
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from time import sleep
 import numpy as np
 import sys
 
-Desktop_Screen_Resolution = [(1920, 1080, 19.92), (1366, 768, 15.98), (1440, 900, 9.37), (1536, 864, 6.56),
-                             (1600, 900, 4.57), (1280, 800, 4.47)]
-Desktop_Browser = [("Chrome", 62.37), ("Safari", 13.43), ("Edge", 8.33), ("Firefox", 8.31),
-                   ("IE", 5.87), ("Opera", 0.71)]
+
+# 随机时间等待
+def random_wait():
+    wait_time = 4 * np.random.randn() + 20
+    if wait_time < 10:
+        wait_time += 10
+    sleep(wait_time)
 
 
+# 按比例调整屏幕分辨率
 class ScreenRes(object):
     @classmethod
     def set(cls, width=None, height=None, depth=32):
@@ -147,21 +153,11 @@ class ScreenRes(object):
         raise NotImplementedError()
 
 
-# 随机时间等待
-def random_wait():
-    wait_time = 4 * np.random.randn() + 20
-    if wait_time < 10:
-        wait_time += 10
-    sleep(wait_time)
-
-
-# 获取user-agent
 def get_UA(type):
     """FireFox, Google Chrome, Edge, IE"""
     # 通过类型，远程连接数据库，获取UA信息，参数type已通过webdriver启动时确定。
 
 
-# 连接远程数据库
 def conn_mysql():
     """
     连接远程数据库，返回游标
@@ -169,9 +165,45 @@ def conn_mysql():
     """
 
 
-# 校验IP是否是绿色的
-def check_ip():
-    url = "https://whatismyipaddress.com/blacklist-check"
-    # 首先查询一次获取一次，获取token后拼接url获取结果。
+class IpThings(object):
+    check_ip_url = "https://whatismyipaddress.com/blacklist-check"
+
+    def __init__(self, ip):
+        self.ip = ip
+
+    def check_if_ip_black(self):
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        desired_capabilities = DesiredCapabilities().CHROME
+        desired_capabilities['pageLoadStrategy'] = 'none'
+        browser = webdriver.Chrome(chrome_options=chrome_options,
+                                   executable_path=r"C:\Program Files (x86)\Google\Chrome\Application\chromedriver",
+                                   desired_capabilities=desired_capabilities)
+
+        browser.get(self.check_ip_url)
+        sleep(5)
+        button = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.NAME, "Lookup Hostname"))
+        )
+        button.click()
+        sleep(20)
+        all_check_tag = browser.find_elements_by_xpath("//table[1]//img")
+        # 获取到了所有的检验链接，接下来统计有多少个red
+        red = 0
+        sleep(10)
+        Blacklists = []
+        # 先获取所有链接
+        for i in all_check_tag:
+            url = i.get_attribute("src")
+            print(url)
+            Blacklists.append(url)
+
+        for black in Blacklists:
+            browser.get(black)
+            sleep(0.1)
+            if "bl_red_" in browser.page_source:
+                red += 1
+        return red
 
 
