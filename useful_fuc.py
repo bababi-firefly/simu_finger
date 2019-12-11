@@ -11,6 +11,9 @@ from time import sleep
 import numpy as np
 import pymysql
 import sys
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 import random
 
 
@@ -206,7 +209,6 @@ class IpThings(object):
             sleep(0.1)
             if "bl_red_" in browser.page_source:
                 red += 1
-        print(red)
         return red
 
 
@@ -262,6 +264,36 @@ class GetBrowser:
     def opera_handler(self):
         pass
 
+
+
+
+class email():
+    """
+    发送错误日志到邮箱
+    """
+    def __init__(self, msg_from, password, msg_to):
+        self.msg_from = msg_from
+        self.password = password
+        self.msg_to = msg_to
+
+    def send_log(self, message):
+        try:
+            self.client = smtplib.SMTP_SSL("smtp.qq.com", smtplib.SMTP_SSL_PORT)
+            print("连接到邮件服务器成功")
+            self.client.login(self.msg_from, self.password)
+            print("登录成功")
+
+            mes = MIMEText(message, 'plain', 'utf-8')
+            mes['From'] = Header(self.msg_from, 'utf-8')
+            mes['To'] = Header(self.msg_to, 'utf-8')
+            mes['Subject'] = Header("日志", 'utf-8')
+
+            self.client.sendmail(self.msg_from, self.msg_to, mes.as_string())
+            print("发送邮件成功")
+        except smtplib.SMTPException as e:
+            print("发送邮件失败")
+        finally:
+            self.client.quit()
 
 
 
