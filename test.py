@@ -1,4 +1,4 @@
-from useful_fuc import IpThings
-
-ip = IpThings("1.1.1.1")
-ip.check_if_ip_black()
+from useful_fuc import *
+from fake_useragent import UserAgent
+ua = UserAgent()
+print(ua.ie)

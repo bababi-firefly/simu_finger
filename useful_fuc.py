@@ -9,7 +9,9 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from time import sleep
 import numpy as np
+import pymysql
 import sys
+import random
 
 
 # 随机时间等待
@@ -204,6 +206,62 @@ class IpThings(object):
             sleep(0.1)
             if "bl_red_" in browser.page_source:
                 red += 1
+        print(red)
         return red
+
+
+class GetBrowser:
+    def __init__(self):
+        self.b_ratio = [55.4, 67.9, 76.5, 83, 85.8]
+        self.b_type = ["Chrome", "Safari", "IE&Edge", "FireFox", "Opera"]
+        self.dbip = ""
+        self.dbuser = "suns"
+        self.dbpass = ""
+        self.dbname = "INFO_DB"
+        self.dbcharset = "utf8mb4"
+        self.ua = ""
+        self.port = 3306
+
+    # 按类型获取UA
+    def get_ua(self, b_type):
+        # 远程获取UA
+        conn = pymysql.connect(self.dbip, self.dbuser, self.dbpass,
+                               self.dbname, port=self.port, charset=self.dbcharset)
+        try:
+            with conn.cursor() as cursor:
+                sql = "SELECT `ua_string` FROM `DATA_UA` WHERE `ua_type`=%s"
+                cursor.execute(sql, (b_type, ))
+                self.ua = cursor.fetchone()
+        finally:
+            conn.close()
+        if self.ua:
+            return self.ua
+
+    # 随机获取浏览器类型
+    def rand_get_b_type(self):
+        num = random.randint(0, 85)
+        for i in self.b_ratio:
+            if num < i:
+                return self.b_type[self.b_ratio.index(i)]
+
+    def browser_handler(self):
+        pass
+
+    def chrome_handler(self):
+        pass
+
+    def safari_handler(self):
+        pass
+
+    def ie_and_edge_handler(self):
+        pass
+
+    def firefox_handler(self):
+        pass
+
+    def opera_handler(self):
+        pass
+
+
 
 
